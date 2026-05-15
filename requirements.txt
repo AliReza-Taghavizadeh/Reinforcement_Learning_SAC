@@ -2,3 +2,4 @@ numpy
 torch
 gymnasium
 argparse
+pandas
