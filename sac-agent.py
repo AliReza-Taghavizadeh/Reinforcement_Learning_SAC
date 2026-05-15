@@ -145,3 +145,37 @@ class SACAgent:
         self.alpha_optim.step()
 
         return alpha_loss.item()
+
+    def soft_update_targets(self):
+        """Soft update target Q-networks"""
+        with torch.no_grad():
+            for p, p_target in zip(self.q1.parameters(), self.q1_target.parameters()):
+                p_target.data.mul_(1.0 - self.tau)
+                p_target.data.add_(self.tau * p.data)
+            for p, p_target in zip(self.q2.parameters(), self.q2_target.parameters()):
+                p_target.data.mul_(1.0 - self.tau)
+                p_target.data.add_(self.tau * p.data)
+
+    def update(self, batch):
+        """One full SAC update step on a minibatch"""
+        states, actions, rewards, next_states, dones = batch
+
+        # Move data to torch tensors on the right device
+        states = torch.as_tensor(states, device=self.device)
+        actions = torch.as_tensor(actions, device=self.device)
+        rewards = torch.as_tensor(rewards, device=self.device)
+        next_states = torch.as_tensor(next_states, device=self.device)
+        dones = torch.as_tensor(dones, device=self.device)
+
+        q1_loss, q2_loss = self.update_q(states, actions, rewards, next_states, dones)
+        policy_loss, probs, log_probs = self.update_policy(states)
+        alpha_loss = self.update_alpha(probs, log_probs)
+        self.soft_update_targets()
+
+        return {
+            "q1_loss": q1_loss,
+            "q2_loss": q2_loss,
+            "policy_loss": policy_loss,
+            "alpha_loss": alpha_loss,
+            "alpha": self.alpha.item(),
+        }
