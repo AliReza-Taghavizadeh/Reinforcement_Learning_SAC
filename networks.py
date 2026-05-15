@@ -36,3 +36,16 @@ class PolicyNetwork(nn.Module):
         dist = torch.distributions.Categorical(probs)
         action = dist.sample()
         return action.item()  # convert tensor to plain Python int
+
+class QNetwork(nn.Module):
+        def __init__(self, state_dim, num_actions, hidden_dim=64):
+            super().__init__()
+            self.fc1 = nn.Linear(state_dim, hidden_dim)
+            self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+            self.fc3 = nn.Linear(hidden_dim, num_actions)
+
+        def forward(self, state):
+            x = F.relu(self.fc1(state))
+            x = F.relu(self.fc2(x))
+            q_values = self.fc3(x)
+            return q_values  # (batch, num_actions)
