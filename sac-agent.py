@@ -110,3 +110,24 @@ class SACAgent:
         self.q2_optim.step()
 
         return q1_loss.item(), q2_loss.item()
+
+    def update_policy(self, states):
+        """One gradient step on the policy."""
+
+        probs, log_probs = self.policy.get_action_probs(states) #(batch, num_actions)
+
+        # Get Q-values for all actions (no gradient into Q)
+        with torch.no_grad():
+            q1 = self.q1(states)
+            q2 = self.q2(states)
+            q_min = torch.min(q1, q2)
+
+        # Policy loss
+        inside = self.alpha * log_probs - q_min
+        policy_loss = (probs * inside).sum(dim=-1).mean()
+
+        self.policy_optim.zero_grad()
+        policy_loss.backward()
+        self.policy_optim.step()
+
+        return policy_loss.item(), probs.detach(), log_probs.detach()
