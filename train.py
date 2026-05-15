@@ -53,6 +53,7 @@ def train(args):
         alpha=args.alpha,
         auto_alpha=args.auto_alpha,
         device=device,
+        target_entropy_ratio=args.target_entropy_ratio,
     )
 
     buffer = ReplayBuffer(capacity=args.buffer_size, state_dim=state_dim)
@@ -143,5 +144,6 @@ if __name__ == "__main__":
     p.add_argument("--log-losses-every", type=int, default=500)
     p.add_argument("--cuda", action="store_true", default=False)
     p.add_argument("--save-dir", type=str, default=None)
+    p.add_argument("--target-entropy-ratio", type=float, default=0.5)
     args = p.parse_args()
     train(args)
