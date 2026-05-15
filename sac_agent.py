@@ -19,7 +19,7 @@ class SACAgent:
         tau=0.005,
         alpha=0.2,
         auto_alpha=True,
-        target_entropy_ratio=0.98,
+        target_entropy_ratio=0.5,
         device="cpu",
     ):
         self.gamma = gamma
