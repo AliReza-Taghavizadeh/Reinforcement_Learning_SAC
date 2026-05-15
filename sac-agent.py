@@ -6,7 +6,7 @@ import torch
 import numpy as np
 
 from networks import PolicyNetwork, QNetwork
-
+import torch.nn.functional as F
 
 class SACAgent:
     def __init__(
@@ -75,3 +75,38 @@ class SACAgent:
                 return probs.argmax(dim=-1).item()
         else:
             return self.policy.sample_action(state_t)
+
+
+    def update_q(self, states, actions, rewards, next_states, dones):
+        """One gradient step on both Q-networks."""
+
+        with torch.no_grad():
+            next_probs, next_log_probs = self.policy.get_action_probs(next_states)
+
+            next_q1 = self.q1_target(next_states)
+            next_q2 = self.q2_target(next_states)
+            next_q_min = torch.min(next_q1, next_q2)  # Clipped double Q
+
+            next_v = (next_probs * (next_q_min - self.alpha * next_log_probs)).sum(dim=-1)
+
+            # Bellman target
+            target_q = rewards + self.gamma * (1.0 - dones) * next_v
+
+        # Compute the current Q-values for the (s, a) pairs in the batch
+        q1_pred = self.q1(states).gather(1, actions.unsqueeze(-1)).squeeze(-1)
+        q2_pred = self.q2(states).gather(1, actions.unsqueeze(-1)).squeeze(-1)
+
+        # MSE loss against the target.
+        q1_loss = F.mse_loss(q1_pred, target_q)
+        q2_loss = F.mse_loss(q2_pred, target_q)
+
+        # PyTorch update pattern
+        self.q1_optim.zero_grad()
+        q1_loss.backward()
+        self.q1_optim.step()
+
+        self.q2_optim.zero_grad()
+        q2_loss.backward()
+        self.q2_optim.step()
+
+        return q1_loss.item(), q2_loss.item()
