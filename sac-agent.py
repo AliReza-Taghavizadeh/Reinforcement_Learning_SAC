@@ -131,3 +131,17 @@ class SACAgent:
         self.policy_optim.step()
 
         return policy_loss.item(), probs.detach(), log_probs.detach()
+
+    def update_alpha(self, probs, log_probs):
+        """One gradient step on log_alpha."""
+        if not self.auto_alpha:
+            return 0.0
+
+        entropy = -(probs * log_probs).sum(dim=-1)
+        alpha_loss = -(self.log_alpha * (self.target_entropy - entropy).detach()).mean()
+
+        self.alpha_optim.zero_grad()
+        alpha_loss.backward()
+        self.alpha_optim.step()
+
+        return alpha_loss.item()
