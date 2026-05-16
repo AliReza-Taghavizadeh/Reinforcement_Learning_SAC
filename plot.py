@@ -6,6 +6,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 METHODS = {
+    "reinforce": {
+        "label": "REINFORCE (Asg 3)",
+        "color": "#2ca02c",   # green
+        "dir":   "results/reinforce",
+        "format": "csv",
+    },
     "dqn": {
         "label": "DQN (Asg 2)",
         "color": "#1f77b4",   # blue
@@ -20,7 +26,7 @@ METHODS = {
     },
     "sac": {
         "label": r"SAC auto-$\alpha$ (ratio 0.70)",
-        "color": "#2ca02c",   # green
+        "color": "#ff0000",   # red
         "dir":   "results/sac_ratio_070",
         "format": "npz",
     },

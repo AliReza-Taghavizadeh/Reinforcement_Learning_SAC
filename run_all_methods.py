@@ -46,6 +46,15 @@ def run_a2c(total_steps, seeds):
     ]
     return run_subprocess(cmd, f"A2C ({total_steps} steps x {len(seeds)} seeds)")
 
+def run_reinforce(total_steps, seeds):
+    """REINFORCE: handles all seeds internally."""
+    cmd = [
+        sys.executable, "reinforce.py",
+        "--output-dir", "results/reinforce",
+        "--total-steps", str(total_steps),
+        "--seeds", *[str(s) for s in seeds],
+    ]
+    return run_subprocess(cmd, f"REINFORCE ({total_steps} steps x {len(seeds)} seeds)")
 
 def run_sac(total_steps, seeds):
     all_ok = True
@@ -65,6 +74,7 @@ def run_sac(total_steps, seeds):
 
 
 METHODS = {
+    "reinforce": run_reinforce,
     "dqn": run_dqn,
     "a2c": run_a2c,
     "sac": run_sac,
