@@ -73,11 +73,28 @@ def run_sac(total_steps, seeds):
     return all_ok
 
 
+def run_sac98(total_steps, seeds):
+    all_ok = True
+    for seed in seeds:
+        cmd = [
+            sys.executable, "train.py",
+            "--seed", str(seed),
+            "--total-steps", str(total_steps),
+            "--save-dir", "results/sac_ratio_098",
+            "--auto-alpha",
+            "--target-entropy-ratio", "0.98",
+        ]
+        ok = run_subprocess(cmd, f"SAC ratio 0.98, seed {seed}")
+        if not ok:
+            all_ok = False
+    return all_ok
+
 METHODS = {
     "reinforce": run_reinforce,
     "dqn": run_dqn,
     "a2c": run_a2c,
     "sac": run_sac,
+    "sac98": run_sac98,
 }
 
 

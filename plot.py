@@ -30,6 +30,12 @@ METHODS = {
         "dir":   "results/sac_ratio_070",
         "format": "npz",
     },
+    "sac98": {
+        "label": r"SAC auto-$\alpha$ (ratio 0.98)",
+        "color": "#000000",  # black
+        "dir": "results/sac_ratio_098",
+        "format": "npz",
+    },
 }
 
 
